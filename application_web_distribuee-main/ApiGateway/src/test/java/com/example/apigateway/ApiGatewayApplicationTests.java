@@ -5,7 +5,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
 class ApiGatewayApplicationTests {
-    // test script
+    // test script for ApiGatewayApplication
     @Test
     void contextLoads() {
     }
