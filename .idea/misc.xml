@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/Eureka/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/ApiGateway/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/confserver/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/Pet_Care_Animall/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/Pet_Care_Service/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/UserMicroservice/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/Pet_Care_Appointment/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/Pet_Care_veterinaire/pom.xml" />
+        <option value="$PROJECT_DIR$/application_web_distribuee-main/pet_care_alimentation/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
