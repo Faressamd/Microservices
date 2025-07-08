@@ -1,0 +1,174 @@
+services:
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5432:5432"
+    networks:
+      - petcare
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:22.0.1
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev --import-realm --db=postgres --db-url=jdbc:postgresql://postgres:5432/keycloak --db-username=keycloak --db-password=keycloak
+    volumes:
+      - ./keycloak-realm.json:/opt/keycloak/data/import/keycloak-realm.json
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - petcare
+    healthcheck:
+      test: ["CMD", "sh", "-c", "exec 3<>/dev/tcp/localhost/8080 && echo -e 'GET /realms/JobBoardKeycloack HTTP/1.0\\r\\nHost: localhost\\r\\n\\r\\n' >&3 && grep -q '200 OK' <&3"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  eureka:
+    build: ./Eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - petcare
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  confserver:
+    build: ./confserver
+    ports:
+      - "8888:8888"
+    networks:
+      - petcare
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  gateway:
+    build: ./ApiGateway
+    ports:
+      - "8082:8082"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka:8761/eureka
+    networks:
+      - petcare
+    depends_on:
+      eureka:
+        condition: service_healthy
+      confserver:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
+  usermicroservice:
+    build: ./UserMicroservice
+    ports:
+      - "8083:8083"
+    environment:
+      - KEYCLOAK_AUTH_SERVER_URL=http://keycloak:8080
+      - KEYCLOAK_REALM=JobBoardKeycloack
+      - KEYCLOAK_CLIENTID=frontend-client
+      - KEYCLOAK_USERNAME=admin
+      - KEYCLOAK_PASSWORD=admin
+    depends_on:
+      keycloak:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      confserver:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - petcare
+
+  pet_care_service:
+    build: ./Pet_Care_Service
+    ports:
+      - "9100:9100"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - petcare
+
+  pet_care_animall:
+    build: ./Pet_Care_Animall
+    ports:
+      - "8090:8090"
+    depends_on:
+      eureka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - petcare
+    volumes:
+      - pet_care_animall_data:/data
+
+  pet_care_appointment:
+    build: ./Pet_Care_Appointment
+    ports:
+      - "8093:8093"
+    depends_on:
+      eureka:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - petcare
+    volumes:
+      - pet_care_appointment_data:/data
+
+  pet_care_veterinaire:
+    build: ./Pet_Care_veterinaire
+    ports:
+      - "8095:8095"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka:
+        condition: service_healthy
+    networks:
+      - petcare
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - gateway
+
+networks:
+  petcare:
+    driver: bridge
+
+volumes:
+  pet_care_appointment_data:
+  pet_care_animall_data:

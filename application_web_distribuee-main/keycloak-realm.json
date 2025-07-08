@@ -1,0 +1,41 @@
+{
+  "realm": "JobBoardKeycloack",
+  "enabled": true,
+  "users": [
+    {
+      "username": "admin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "frontend-client",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": ["*"]
+    },
+    {
+      "clientId": "backend-service",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "backend-secret",
+      "redirectUris": [
+        "*"
+      ],
+      "webOrigins": ["*"]
+    }
+  ]
+} 
